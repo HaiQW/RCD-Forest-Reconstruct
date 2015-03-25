@@ -45,6 +45,7 @@ t_Configure file::ReadConfiguraion(char *file_name)
 
           cfg_file>>discared1>>discared2>>config.class_num_;
           cfg_file>>discared1>>discared2>>config.dimension_size_;
+          cfg_file>>discared1>>discared2>>config.data_size_;
           cfg_file>>discared1>>discared2>>config.sample_size_;
           cfg_file>>discared1>>discared2>>config.tree_num_;
           cfg_file>>discared1>>discared2>>config.cluster_num_;
@@ -54,7 +55,7 @@ t_Configure file::ReadConfiguraion(char *file_name)
       /*Read all class proportion*/
       if(std::string(status) == std::string("PROPORTION_NUM"))
       {
-          for( int unsigned i = 0 ; i < config.class_num_; i++)
+          for(int i = 0; i < config.class_num_; i++)
           {
               t_Proportion proportion;
               cfg_file>>proportion.class_label_>>proportion.proportion_;
@@ -73,9 +74,8 @@ t_Configure file::ReadConfiguraion(char *file_name)
 
 
 
-
-bool file::ReadData(char *file_name, std::vector<t_Data> *des_set,
-                    int attribute_num)
+void file::ReadData(char *file_name, Eigen::MatrixXd &data_matrix,
+                    Eigen::VectorXi &label_vector)
 {
   std::fstream data_file(file_name, std::ios::in);
 
@@ -87,18 +87,25 @@ bool file::ReadData(char *file_name, std::vector<t_Data> *des_set,
     }
 
   /*read data file by line*/
-  while(!data_file.eof())
+  int rows = data_matrix.rows();
+  int cols = data_matrix.cols();
+  int i;
+  for(i = 0; i < rows; i++)
     {
-      t_Data element = NULL;
-      double category = 0.0;
+      double label = DBL_MAX;
 
-      int i = 0;
-//      for()
-//        {
+      int j;
+      for(j = 0; j < cols; j++)
+        {
+          double attribute = DBL_MAX;
+          data_file>>attribute;
+          data_matrix(i,j) = attribute;
+        }
 
-//        }
-
+      /* Read the class label*/
+      data_file>>label;
+      label_vector(i,0) = (int)label;
     }
-  data_file.close();
 
+  data_file.close();
 }

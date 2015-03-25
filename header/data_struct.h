@@ -23,22 +23,15 @@ struct t_NN
   int num_;
 };
 
-struct t_INode
+struct t_Cnode
 {
-  //t_INode中所容纳的数据点的个数
-  int node_size_;
-  //这个节点中用来分割数据集合的维度索引
-  int dimension_index_;
-  //用来划分最有两个子树的分割点
-  double split_value_;
-  //分割维度的方差
+  int size_;
+  int par_dim_;
+  double par_point_;
   double variance_;
-  //左子树指针
-  t_INode *left_node_;
-  //右子树指针
-  t_INode *right_node_;
-  //父亲节点指针
-  t_INode *parent_node_;
+  t_Cnode *left_;
+  t_Cnode *right_;
+  t_Cnode *parent_;
 };
 
 //配置文件
@@ -57,15 +50,12 @@ struct t_Proportion
 
 struct t_Data
 {
-  //属性的个数
   int attribute_num_;
   //记录属性值的数组
   std::vector<double> attribute_;
   //该数据所属的类别
-  int data_class_;
+  int label_;
   int find_label_;
-  //lof
-  double lof_;
 };
 
 struct t_Range
@@ -139,6 +129,7 @@ struct t_Configure
   int tree_num_;
   int cluster_num_;
   int class_num_;
+  int data_size_;
   float bin_width_;
   char* data_file_;
   char* score_file_;

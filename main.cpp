@@ -1,10 +1,16 @@
 #include <iostream>
 #include <fstab.h>
+
 #include "header/easylogging++.h"
 #include "header/data_struct.h"
 #include "header/file.h"
+#include "header/ctree.h"
 
-INITIALIZE_EASYLOGGINGPP
+#include "eigen3/Eigen/Dense"
+
+using Eigen::MatrixXd;
+
+INITIALIZE_EASYLOGGINGPP //log
 //using namespace std;
 
 int main()
@@ -20,10 +26,19 @@ int main()
   std::vector<t_Data> data_set;
   char *cfg_file = "glass/glass_config.txt";
 
+  t_Configure  cfg;
   LOG(INFO) << "Reading configuration file...";
-  file::ReadConfiguraion(cfg_file);
+  cfg = file::ReadConfiguraion(cfg_file);
 
   LOG(INFO) << "Reading Data file...";
-  //std::fstream f_out("A.txt",std::ios::out);
+  Eigen::MatrixXd data_matrix(cfg.data_size_, cfg.dimension_size_);
+  Eigen::VectorXi label_vector(cfg.data_size_);
+
+  file::ReadData("glass/glass.txt", data_matrix, label_vector);
+
+  LOG(INFO) << "Build a compact tree...";
+  ctree* compact_tree = new ctree(data_matrix,10);
+  compact_tree->BuildCTree();
+
    return 0;
 }
