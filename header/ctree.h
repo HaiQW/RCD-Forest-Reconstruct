@@ -5,8 +5,10 @@
 #include <iostream>
 #include <eigen3/Eigen/Dense>
 
-#include "header/data_struct.h"
 
+#include "header/easylogging++.h"
+#include "header/data_struct.h"
+#include "header/assert.h"
 class ctree
 {
 public:
@@ -18,7 +20,7 @@ public:
   void BuildCTree();
 
   /* class member */
-  void BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height_);
+  void BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height);
 
   /* Search */
   double SearchElement(t_Cnode* root, t_Data element, int height);

@@ -22,9 +22,21 @@ void ctree::BuildCTree()
 
 }
 
-void ctree::BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height_)
+void ctree::BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height)
 {
-  assert(root);
+  if(height >= height_ || data_set.rows() <= 1)
+    {
+      return;
+    }
+  else
+    {
+      double par_point = __DBL_MAX__;
+      int par_dim = __INT_MAX__;
+      bool par_flag = false;
+
+      /*split the original data set*/
+
+    }
 }
 
 

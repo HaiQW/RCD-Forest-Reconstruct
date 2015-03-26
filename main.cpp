@@ -5,6 +5,7 @@
 #include "header/data_struct.h"
 #include "header/file.h"
 #include "header/ctree.h"
+#include "header/utility.h"
 
 #include "eigen3/Eigen/Dense"
 
@@ -12,7 +13,10 @@ using Eigen::MatrixXd;
 
 INITIALIZE_EASYLOGGINGPP //log
 //using namespace std;
-
+int cmp(Eigen::RowVectorXd a, Eigen::RowVectorXd b)
+{
+  return a(0) < b(0);
+}
 int main()
 {
   /* Set Up Log*/
@@ -37,8 +41,6 @@ int main()
   file::ReadData("glass/glass.txt", data_matrix, label_vector);
 
   LOG(INFO) << "Build a compact tree...";
-  ctree* compact_tree = new ctree(data_matrix,10);
-  compact_tree->BuildCTree();
 
-   return 0;
+  return 0;
 }

@@ -1,8 +1,11 @@
 #ifndef DATA_PROCESS_H
 #define DATA_PROCESS_H
 #include <vector>
+#include <eigen3/Eigen/Dense>
+#include <random>
 
 #include "header/data_struct.h"
+#include "header/utility.h"
 
 namespace dataprocess
 {
@@ -13,6 +16,9 @@ namespace dataprocess
   /*Normalize the massive data set, set all attribute to range(0,1)*/
   void NormalizeData(std::vector<t_Data>*data_set);
 
+  bool SemiBestPartition(Eigen::MatrixXd &source, Eigen::MatrixXd &left,
+                         Eigen::MatrixXd &right, int &par_dim,
+                         double &par_point);
   /*Semi-Best Partition*/
   bool DeterministicSplitDataSet(std::vector<t_Data> *target_left_set,
                                  std::vector<t_Data> *target_right_set,

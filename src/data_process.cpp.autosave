@@ -44,12 +44,17 @@ bool dataprocess::SemiBestPartition(Eigen::MatrixXd &source,
       double left_tmp_avg = (left_avg * j + tmp_value) / (j + 1);
       left_avg_dis = left_avg_dis + (tmp_value * tmp_value) +
           2 * (left_tmp_avg - left_avg) * j + left_tmp_avg * tmp_value +
-          j * left_temp_avg * left_temp_avg - (j - 1) * left_avg * left_avg;
-
+          (j + 1) * left_tmp_avg * left_tmp_avg - j * left_avg * left_avg;
+ 
       /* right side */
-      double right_tmp_avg = (right_avg * (size - j) - tmp_value) / (size - j -1)
+      double right_tmp_avg = (right_avg * (size - j) - tmp_value) / 
+          (size - j -1);
+      right_avg_dis = right_avg_dis - (tmp_value * tmp_value) + 
+          2 * (right_tmp_avg - right_avg) * (size - j) - right_tmp_avg * tmp_value +
+          (size - j - 1) * right_tmp_avg * right_tmp_avg - (size - j) * right_avg * right_avg;
 
       left_avg = left_tmp_avg;
+      right_avg = right_tmp_avg;
 
     }
 }
