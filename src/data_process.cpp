@@ -13,9 +13,15 @@ bool dataprocess::SemiBestPartition(Eigen::MatrixXd &source,
                                     Eigen::MatrixXd &right,
                                     int &par_dim, double &par_point)
 {
+  if(source.rows() <= 1)
+    {
+      return false;
+    }
 
-  double semi_best_score = -__DBL_MAX__;
-  int size = source.size();
+  double semi_best_score = __DBL_MAX__;
+  int size = source.rows();
+  int semi_best_index = -1;
+
   par_dim = random()%source.cols(); //randomly select a partition dimension
 
   /*sort the elements in the selected dimension, we get an sorted index*/
@@ -23,33 +29,61 @@ bool dataprocess::SemiBestPartition(Eigen::MatrixXd &source,
 
   /* calculate semi-best score*/
   int i = 0;
-  double sum = 0.0, right_avg = 0.0, right_avg_dis = 0.0;
+  double sum = 0.0, right_avg = 0.0, right_dis = 0.0;
   for(i = 0; i < size; i++)
     {
       double tmp_value = source(order_index(i), par_dim);
       sum += tmp_value;
-      right_avg_dis += tmp * tmp_value;
+      right_dis += tmp_value * tmp_value;
     }
-  right_avg = sum / size;
-  right_avg_dis = right_avg_dis + (size * right_avg * right_avg) -
+  right_avg = sum / size ;
+  right_dis = right_dis + (size * right_avg * right_avg) -
       (2 * right_avg * sum);
 
-  int j = 0;
-  double left_avg = 0.0, left_avg_dis = 0.0;
-  for(j = 0; j < size; j++)
+  int j;
+  double left_avg = 0.0, left_dis = 0.0;
+  for(j = 0; j < size - 1; j++)
     {
-      double tmp_value = source(order_index(i), par_dim);
+      double tmp_value = source(order_index(j), par_dim);
 
-      /* left side */
+      /* calculate the left side average distance */
       double left_tmp_avg = (left_avg * j + tmp_value) / (j + 1);
-      left_avg_dis = left_avg_dis + (tmp_value * tmp_value) +
-          2 * (left_tmp_avg - left_avg) * j + left_tmp_avg * tmp_value +
-          j * left_temp_avg * left_temp_avg - (j - 1) * left_avg * left_avg;
+      left_dis = left_dis + (tmp_value - left_tmp_avg) * (tmp_value - left_tmp_avg)-
+          2 * (left_tmp_avg - left_avg) * left_avg * j +
+          left_tmp_avg * left_tmp_avg * j - left_avg * left_avg * j;
 
-      /* right side */
-      double right_tmp_avg = (right_avg * (size - j) - tmp_value) / (size - j -1)
+      /* calculate the right side average distance */
+      double right_tmp_avg = ((right_avg * (size - j) - tmp_value)) /
+          (size - j -1);
+      right_dis = right_dis - ( tmp_value - right_avg) * (tmp_value - right_avg) -
+          2 * (right_tmp_avg - right_avg) * right_tmp_avg * (size - j - 1) +
+          (size - j - 1) * right_tmp_avg * right_tmp_avg - (size - j - 1) * right_avg * right_avg;
+
+      if((left_dis + right_dis) < semi_best_score)
+        {
+          semi_best_score = left_dis + right_dis;
+          par_point = tmp_value;
+          semi_best_index = j;
+        }
 
       left_avg = left_tmp_avg;
-
+      right_avg = right_tmp_avg;
     }
+
+  /* Assign the elements to each sub set */
+  left.resize(semi_best_index + 1, source.cols());
+  right.resize(size - semi_best_index - 1, source.cols());
+  for( int k = 0; k < size; k++)
+    {
+      if(k <= semi_best_index)
+        {
+          left.row(k) << source.row(order_index(k));
+        }
+      else
+        {
+          right.row(k - semi_best_index -1) << source.row(order_index(k));
+        }
+    }
+
+  return true;
 }

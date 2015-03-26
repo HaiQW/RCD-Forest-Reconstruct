@@ -57,6 +57,11 @@ void ctree::BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height)
     }
 }
 
+double ctree::SearchElement(t_Cnode *root, VectorXd &data_vector, int height)
+{
+  
+}
+
 void ctree::PrintCtree()
 {
   if(root_->left_ == NULL && root_->right_ == NULL)

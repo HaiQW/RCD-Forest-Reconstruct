@@ -4,11 +4,13 @@
 #include <vector>
 #include <iostream>
 #include <eigen3/Eigen/Dense>
-
+#include <queue>
 
 #include "header/easylogging++.h"
 #include "header/data_struct.h"
 #include "header/assert.h"
+#include "header/data_process.h"
+
 class ctree
 {
 public:
@@ -17,13 +19,13 @@ public:
 
 public:
 
-  void BuildCTree();
+  void BuildCtree();
 
   /* class member */
   void BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height);
 
   /* Search */
-  double SearchElement(t_Cnode* root, t_Data element, int height);
+  double SearchElement(t_Cnode* root, Eigen::VectorXd &data_vector, int height);
 
 
   void PrintCtree();
