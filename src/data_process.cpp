@@ -8,24 +8,24 @@ void dataprocess::RandomSampling(const std::vector<t_Data> *src,
 }
 
 
-bool dataprocess::SemiBestPartition(Eigen::MatrixXd &source,
-                                    Eigen::MatrixXd &left,
-                                    Eigen::MatrixXd &right,
+bool dataprocess::SemiBestPartition(mat &source,
+                                    mat &left,
+                                    mat &right,
                                     int &par_dim, double &par_point)
 {
-  if(source.rows() <= 1)
+  if(source.n_rows <= 1)
     {
       return false;
     }
-
   double semi_best_score = __DBL_MAX__;
-  int size = source.rows();
+  int size = source.n_rows;
   int semi_best_index = -1;
 
-  par_dim = random()%source.cols(); //randomly select a partition dimension
+  std::srand((unsigned)time(NULL));
+  par_dim = random()%source.n_cols; /*!< randomly select a partition dimension*/
 
-  /*sort the elements in the selected dimension, we get an sorted index*/
-  Eigen::VectorXi order_index = utility::RowArgSort(source, par_dim);
+  /*! sort the elements in the selected dimension, we get an sorted index*/
+  uvec order_index = sort_index(source.col(par_dim));
 
   /* calculate semi-best score*/
   int i = 0;
@@ -71,17 +71,17 @@ bool dataprocess::SemiBestPartition(Eigen::MatrixXd &source,
     }
 
   /* Assign the elements to each sub set */
-  left.resize(semi_best_index + 1, source.cols());
-  right.resize(size - semi_best_index - 1, source.cols());
+  left.set_size(semi_best_index + 1, source.n_cols);
+  right.set_size(size - semi_best_index - 1, source.n_cols);
   for( int k = 0; k < size; k++)
     {
       if(k <= semi_best_index)
         {
-          left.row(k) << source.row(order_index(k));
+          left.row(k) = source.row(order_index(k));
         }
       else
         {
-          right.row(k - semi_best_index -1) << source.row(order_index(k));
+          right.row(k - semi_best_index -1) = source.row(order_index(k));
         }
     }
 

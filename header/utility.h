@@ -24,8 +24,8 @@ namespace utility
 //     }
 //   };
 
-  /**
-   * RowComparator used in Sorting with row in a Matrix.
+  /*!
+   *
    */
   template <typename Derived>
   struct RowComparator
@@ -63,14 +63,20 @@ namespace utility
    * Sort the Data Matrix by row according to the value in col
    */
   template <typename Derived>
+  /*!
+   * \brief RowArgSort
+   * \param matrix
+   * \param col
+   * \return
+   */
   VectorXi RowArgSort(const MatrixBase<Derived>& matrix, int col)
   {
     /* Start with indices [0 1 2 ... N-1] */
     VectorXi indexes = VectorXi::LinSpaced(matrix.rows(), 0, matrix.rows()-1);
 
-    /* Sort using custome comparator, that will compare matrix values
-      * indirectly
-      */
+    /*!
+     * \brief std::sort
+     */
     std::sort(indexes.data(), indexes.data() + indexes.size(),
               RowComparator<Derived>(matrix,col));
 

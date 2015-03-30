@@ -8,20 +8,39 @@
 #include <iostream>
 #include <limits.h>
 #include <eigen3/Eigen/Dense>
+#include <armadillo>
 
 #include "header/file.h"
 #include "header/data_struct.h"
 
+using namespace arma;
+
 namespace file
 {
-  /*Read the configuration from a file*/
+  /*!
+   * \brief ReadConfiguraion
+   * \param file_name
+   * \return
+   */
   t_Configure ReadConfiguraion(char* file_name );
 
-  /* Read data from the input file*/
-  void ReadData(char* file_name, Eigen::MatrixXd &data_matrix,
-                Eigen::VectorXi &label_vector);
+  /*!
+   * \brief ReadData
+   * \param file_name
+   * \param data_matrix
+   * \param label_vector
+   */
+  void ReadData(const char* file_name, mat &data_matrix,
+                vec &label_vector);
 
-  /* Write Rare Score to output file*/
+
+  /*!
+   * \brief WriteRareScore
+   * \param file_name
+   * \param src_set
+   * \param anomaly_score
+   * \return
+   */
   bool WriteRareScore(char* file_name, std::vector<t_Data>* src_set,
                       std::vector<t_AnomalyScore>* anomaly_score);
 }

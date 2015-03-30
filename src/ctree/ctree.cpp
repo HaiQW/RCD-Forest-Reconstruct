@@ -1,22 +1,6 @@
 #include "header/ctree.h"
 
 
-ctree::ctree(Eigen::MatrixXd &data_matrix, int height)
-{
-   if(data_matrix.cols()<= 0
-      || height <= 0
-      || data_matrix.rows() <= 0)
-     {
-       exit(-1);
-     }
-
-   height_ = height;
-   data_matrix_ = data_matrix;
-   root_ = new t_Cnode();
-   root_->left_ = NULL;
-   root_->right_ =NULL;
-}
-
 void ctree::BuildCtree()
 {
   /* Normalize the data set*/
@@ -24,18 +8,18 @@ void ctree::BuildCtree()
 
 }
 
-void ctree::BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height)
+void ctree::BuildCtree(t_Cnode *root, mat &data_set, int height)
 {
-  if(height >= height_ || data_set.rows() <= 1)
+  if(height >= height_ || data_set.n_rows <= 1)
     {
-      root->left_ = NULL;
-      root->right_ = NULL;
-      root->size_ = data_set.rows();
+      root->left_ = nullptr;
+      root->right_ = nullptr;
+      root->size_ = data_set.n_rows;
       return;
     }
   else
     {
-      Eigen::MatrixXd left, right;
+      mat left, right;
       t_Cnode *left_node, *right_node;
       double par_point = __DBL_MAX__;
       int par_dim = __INT_MAX__;
@@ -44,7 +28,7 @@ void ctree::BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height)
       dataprocess::SemiBestPartition(data_set,left,right,par_dim,par_point);
       root->par_dim_ = par_dim;
       root->par_point_ = par_point;
-      root->size_ = data_set.rows();
+      root->size_ = data_set.n_rows;
       //variance
 
       left_node = new t_Cnode();
@@ -57,30 +41,56 @@ void ctree::BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height)
     }
 }
 
+double ctree::SearchElement(const rowvec &data_vector)
+{
+  return SearchHelp(root_,data_vector,0);
+}
+
+double ctree::SearchHelp(t_Cnode *root, const rowvec &data_vector, int height)
+{
+  if(root->left_ == nullptr && root->right_ == nullptr)//leaf node
+    {
+      return height;//have diffirent principles to calculate rare score
+    }
+  else
+    {
+      /* internal search */
+      if( data_vector(root->par_dim_) < root->par_point_)
+        {
+          SearchHelp(root->left_, data_vector, height + 1);
+        }
+      else
+        {
+          SearchHelp(root->right_, data_vector, height + 1);
+        }
+    }
+
+}
+
 void ctree::PrintCtree()
 {
-  if(root_->left_ == NULL && root_->right_ == NULL)
+  if(root_->left_ == nullptr && root_->right_ == nullptr)
     {
       LOG(ERROR)<<"THE COMPACT TREE HAS NOT BEEN CONSTRUCT!";
     }
 
   std::queue<t_Cnode*> node_list;
   node_list.push(root_);
-  node_list.push(NULL);
+  node_list.push(nullptr);
   LOG(INFO)<<"PRINT THE COMPACT TREE...";
   while(!node_list.empty())
     {
        t_Cnode *crr_node = node_list.front();
        node_list.pop();
-       if(crr_node == NULL)
+       if(crr_node == nullptr)
          {
            std::cout << std::endl;
            if(node_list.empty()) return;
-           node_list.push(NULL);
+           node_list.push(nullptr);
          }
        else
          {
-           if( crr_node->left_ != NULL && crr_node->right_ != NULL)
+           if( crr_node->left_ != nullptr && crr_node->right_ != nullptr)
              {
                node_list.push(crr_node->left_);
                node_list.push(crr_node->right_);

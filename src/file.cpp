@@ -74,8 +74,8 @@ t_Configure file::ReadConfiguraion(char *file_name)
 
 
 
-void file::ReadData(char *file_name, Eigen::MatrixXd &data_matrix,
-                    Eigen::VectorXi &label_vector)
+void file::ReadData(const char *file_name, mat &data_matrix,
+                    vec &label_vector)
 {
   std::fstream data_file(file_name, std::ios::in);
 
@@ -87,8 +87,8 @@ void file::ReadData(char *file_name, Eigen::MatrixXd &data_matrix,
     }
 
   /*read data file by line*/
-  int rows = data_matrix.rows();
-  int cols = data_matrix.cols();
+  int rows = data_matrix.n_rows;
+  int cols = data_matrix.n_cols;
   int i;
   for(i = 0; i < rows; i++)
     {
@@ -104,8 +104,7 @@ void file::ReadData(char *file_name, Eigen::MatrixXd &data_matrix,
 
       /* Read the class label*/
       data_file>>label;
-      label_vector(i,0) = (int)label;
+      label_vector(i,0) = label;
     }
-
   data_file.close();
 }

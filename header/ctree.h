@@ -5,35 +5,80 @@
 #include <iostream>
 #include <eigen3/Eigen/Dense>
 #include <queue>
+#include <armadillo>
 
 #include "header/easylogging++.h"
 #include "header/data_struct.h"
 #include "header/assert.h"
 #include "header/data_process.h"
 
+using namespace arma;
+
+/*!
+ * \brief The ctree class
+ */
 class ctree
 {
 public:
-  ctree(Eigen::MatrixXd &data_set, int height);
+
+  /*!
+   * \brief ctree
+   * \param data_set
+   * \param height
+   */
+  explicit ctree(mat &data_set, int height):data_matrix_(data_set),
+    height_(height)
+  {
+    root_ = new t_Cnode();
+    root_->left_ = nullptr;
+    root_->right_ = nullptr;
+  }
+
   ~ctree();
 
 public:
 
+  /*!
+   * \brief BuildCtree
+   */
   void BuildCtree();
 
-  /* class member */
-  void BuildCtree(t_Cnode *root, Eigen::MatrixXd &data_set, int height);
+  /*!
+   * \brief BuildCtree
+   * \param root
+   * \param data_set
+   * \param height
+   */
+  void BuildCtree(t_Cnode *root, mat &data_set, int height);
 
-  /* Search */
-  double SearchElement(t_Cnode* root, Eigen::VectorXd &data_vector, int height);
+  /*!
+   * \brief SearchElement
+   * \param data_vector
+   * \return
+   */
+  double SearchElement(const rowvec &data_vector);
 
-
+  /*!
+   * \brief PrintCtree
+   */
   void PrintCtree();
 
+protected:
+
+  /*!
+   * \brief SearchHelp
+   * \param root
+   * \param data_vector
+   * \param height
+   * \return
+   */
+  double SearchHelp(t_Cnode* root, const rowvec &data_vector, int height);
+
 private:
-  int height_;
+  int height_;  /*!< the maximum height of the compact tree. */
   t_Cnode* root_;
-  Eigen::MatrixXd data_matrix_;
+  mat data_matrix_;
+
 
 };
 #endif // CTREE_H
