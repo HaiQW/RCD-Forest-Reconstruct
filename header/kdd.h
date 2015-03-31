@@ -1,8 +1,9 @@
-#ifndef NNDM_H
-#define NNDM_H
+#ifndef KDD_H
+#define KDD_H
 
 #include <mlpack/methods/neighbor_search/neighbor_search.hpp>
 #include <mlpack/methods/kmeans/kmeans.hpp>
+#include "header/easylogging++.h"
 
 #include <header/data_struct.h>
 
@@ -15,8 +16,9 @@ using namespace mlpack::neighbor;
  * NNDM the aim of NNDM is to find at least one example for every
  * class with the help of a tag library
  */
-class NNDM
+class KDD
 {
+
 public:
 
   /*!
@@ -26,14 +28,14 @@ public:
    * \param label_vector label-value of the data set
    * \param proportion proportion of class distribution
    */
-  explicit NNDM(mat data_matrix, const std::vector<int> &label_vector,
-       const std::vector<double> &proportion): data_matrix_(data_matrix),
-    label_vector_(label_vector),proportion_(proportion)
+  explicit KDD(const mat &data_matrix, const colvec &label_vector,
+                unsigned int size, unsigned int class_num):
+    data_matrix_(data_matrix),size_(size),label_vector_(label_vector),
+    class_num_(class_num)
   {
-
   }
 
-  ~NNDM();
+  ~KDD();
 
 public:
 
@@ -43,6 +45,7 @@ public:
    * \brief DiscoverClass to find
    */
   void DiscoverClass();
+
 public:
 
   /*!
@@ -50,17 +53,16 @@ public:
    * nearest neighbour
    * \return a vector of radius
    */
-  colvec EstimateRadius();
+  //colvec EstimateRadius();
 
 private:
 
   mat data_matrix_;
-  std::vector<int> label_vector_;
-  std::vector<double> proportion_;
-  std::vector<int> class_num_;
+  colvec label_vector_;
   Mat<size_t> neighbor_index_;
-
-
+  mat neighbor_;
+  unsigned int size_;
+  unsigned int class_num_;
 
 };
 #endif // NNDM_H

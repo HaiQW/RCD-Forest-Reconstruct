@@ -8,7 +8,7 @@ SOURCES += main.cpp \
     src/file.cpp \
     src/ctree/ctree.cpp \
     src/cforest.cpp \
-    src/NNDM.cpp
+    src/kdd.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -22,9 +22,10 @@ HEADERS += \
     header/ctree.h \
     header/assert.h \
     header/cforest.h \
-    header/NNDM.h
+    header/kdd.h
 
 INCLUDEPATH += /usr/include/libxml2
+
 #LIBS += -lmlpack
 #LIBS += -larmadillo
 #include(deployment.pri)
@@ -35,3 +36,10 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../download/lib/debug/ 
 else:unix: LIBS += -L$$PWD/../download/lib/ -lmlpack
 
 
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../usr/include/release/ -larmadillo
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../usr/include/debug/ -larmadillo
+else:unix: LIBS += -L$$PWD/../../../../../usr/include/ -larmadillo
+
+INCLUDEPATH += $$PWD/../../../../../usr/include
+DEPENDPATH += $$PWD/../../../../../usr/include

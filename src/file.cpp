@@ -75,7 +75,7 @@ t_Configure file::ReadConfiguraion(char *file_name)
 
 
 void file::ReadData(const char *file_name, mat &data_matrix,
-                    vec &label_vector)
+                   Col<size_t> &label_vector)
 {
   std::fstream data_file(file_name, std::ios::in);
 

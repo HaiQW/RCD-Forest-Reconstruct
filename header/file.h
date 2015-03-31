@@ -31,7 +31,7 @@ namespace file
    * \param label_vector
    */
   void ReadData(const char* file_name, mat &data_matrix,
-                vec &label_vector);
+                Col<size_t> &label_vector);
 
 
   /*!

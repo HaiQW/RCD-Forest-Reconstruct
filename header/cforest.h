@@ -33,7 +33,7 @@ public:
 
 public:
 
-  bool BuildForest();
+  bool BuildForest(int leaf_size);
 
   /*!
    * \brief CalculateRareScore calcualte an rare score of a input elements

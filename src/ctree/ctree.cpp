@@ -10,7 +10,7 @@ void ctree::BuildCtree()
 
 void ctree::BuildCtree(t_Cnode *root, mat &data_set, int height)
 {
-  if(height >= height_ || data_set.n_rows <= 1)
+  if(height >= height_ || data_set.n_rows <= 10)
     {
       root->left_ = nullptr;
       root->right_ = nullptr;

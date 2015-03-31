@@ -4,6 +4,10 @@
 #include <eigen3/Eigen/Dense>
 #include <armadillo>
 
+#include "mlpack/methods/pca/pca.hpp"
+#include <mlpack/methods/kmeans/kmeans.hpp>
+#include <mlpack/methods/neighbor_search/neighbor_search.hpp>
+
 #include "header/easylogging++.h"
 #include "header/data_struct.h"
 #include "header/file.h"
@@ -11,10 +15,14 @@
 #include "header/utility.h"
 #include "header/data_process.h"
 #include "header/cforest.h"
-#include "header/NNDM.h"
+#include "header/kdd.h"
 
 using Eigen::MatrixXd;
-using namespace arma;
+//using namespace arma;
+using namespace mlpack::pca;
+using namespace mlpack::kmeans;
+using namespace mlpack::neighbor;
+
 INITIALIZE_EASYLOGGINGPP //log
 
 int main()
@@ -29,7 +37,7 @@ int main()
   el::Loggers::reconfigureLogger("default", defaultConf);
 
   std::vector<t_Data> data_set;
-  char *cfg_file = "glass/glass_config.txt";
+  char *cfg_file = "page_block/page_block_config.txt";
 
   t_Configure  cfg;
   LOG(INFO) << "Reading configuration file...";
@@ -37,49 +45,43 @@ int main()
 
   LOG(INFO) << "Reading Data file...";
   mat data_matrix(cfg.data_size_,cfg.dimension_size_);
-  vec label_vector(cfg.data_size_);
-  file::ReadData("glass/glass.txt", data_matrix, label_vector);
-  //dataprocess::SemiBestPartition(data_matrix,left,right,dim,point);
+  Col<size_t> label_vector(cfg.data_size_);
+  file::ReadData("page_block/page.txt", data_matrix, label_vector);
+
   LOG(INFO) << "Build a compact tree...";
-
-  ctree *compact = new ctree(data_matrix,std::log2(data_matrix.n_rows));
-  compact->BuildCtree();
-  compact->PrintCtree();
-
-  cforest *compact_forest = new cforest(data_matrix, cfg.tree_num_,
+  inplace_trans(data_matrix);
+  mat result1;
+  vec eigval;
+  mat eigvec;
+  PCA pca_test;
+  pca_test.Apply(data_matrix, result1, eigval, eigvec);
+  inplace_trans(data_matrix);
+  mat datas (data_matrix.n_rows, 2);
+  datas.col(0) = data_matrix.col(0);
+  datas.col(1) = data_matrix.col(1);
+  //datas.col(2) = data_matrix.col(2);
+  //datas.col(3) = data_matrix.col(3);
+  cforest *compact_forest = new cforest(datas, cfg.tree_num_,
                                         cfg.sample_size_);
-  compact_forest->BuildForest();
+  compact_forest->BuildForest(25);
   colvec score = compact_forest->CalculateAllRareScore();
-  //std::cout<<score;
   uvec index = sort_index(score);
 
-  mat result(data_matrix.n_rows,2);
-  for(int i = 0; i < data_matrix.n_rows; i++)
+  unsigned candidate_size = 150;
+  mat kdd_data(candidate_size,2);
+  colvec label(candidate_size);
+  for(int i = 0; i < candidate_size; i++)
     {
-      result(i,0) = score(index(i));
-      result(i,1) = label_vector(index(i));
+
+       label(i) = label_vector(index(i));
+       kdd_data.row(i) = datas.row(i);
     }
+  std::cout<<label;
 
-  std::cout<<result;
-  ///copy proportition
-  std::vector<double> proportion;
-  std::for_each(
-        cfg.p_set.begin(),
-        cfg.p_set.end(),
-        [&proportion](t_Proportion &p){
-    proportion.push_back(p.proportion_);
+  inplace_trans(kdd_data);
 
-  });
-
-  ///copy label
-  std::vector<int> label;
-  for( int i = 0; i < label_vector.size(); i++)
-    {
-      label.push_back(label_vector(i));
-    }
- // std::cout << result;
-  LOG(INFO)<<"TEST NNDM...";
-  NNDM *nndm = new NNDM(data_matrix, label, proportion);
-  nndm->EstimateRadius();
+  LOG(INFO)<<"TEST NNDM...";;/*! transpose the matrix */
+  KDD *kdd = new KDD(kdd_data, label, 10, 5);
+  kdd->DiscoverClass();
   return 0;
 }

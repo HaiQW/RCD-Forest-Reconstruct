@@ -26,8 +26,8 @@ public:
    * \param data_set
    * \param height
    */
-  explicit ctree(mat &data_set, int height):data_matrix_(data_set),
-    height_(height)
+  explicit ctree(mat &data_set,int size, int height):data_matrix_(data_set),
+    height_(height),size_(size)
   {
     root_ = new t_Cnode();
     root_->left_ = nullptr;
@@ -75,6 +75,8 @@ protected:
   double SearchHelp(t_Cnode* root, const rowvec &data_vector, int height);
 
 private:
+
+  int size_; /*!< the maximum size of a leaf node */
   int height_;  /*!< the maximum height of the compact tree. */
   t_Cnode* root_;
   mat data_matrix_;
