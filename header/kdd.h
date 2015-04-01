@@ -9,28 +9,26 @@
 
 using namespace arma;
 using namespace mlpack;
-using namespace mlpack::kmeans;
 using namespace mlpack::neighbor;
-/*!
- * \brief The NNDM class
- * NNDM the aim of NNDM is to find at least one example for every
- * class with the help of a tag library
- */
+///
+/// \brief The KDD class  KDD means kdistance discovery.  KDD select the
+/// element with minimum k-distance as a rare category candidate.
+///
 class KDD
 {
 
 public:
 
-  /*!
-   * \brief
-   *
-   * \param data_matrix  attribute-value of the data set
-   * \param label_vector label-value of the data set
-   * \param proportion proportion of class distribution
-   */
+  ///
+  /// \brief KDD
+  /// \param data_matrix  Attribute-value of the data set
+  /// \param label_vector  Label-value of the data set
+  /// \param size  Paramater k
+  /// \param class_num  The number of class in the given massive data set
+  ///
   explicit KDD(const mat &data_matrix, const colvec &label_vector,
                 unsigned int size, unsigned int class_num):
-    data_matrix_(data_matrix),size_(size),label_vector_(label_vector),
+    data_matrix_(data_matrix),label_vector_(label_vector),size_(size),
     class_num_(class_num)
   {
   }
@@ -41,28 +39,20 @@ public:
 
   void FitModel();
 
-  /*!
-   * \brief DiscoverClass to find
-   */
+  ///
+  /// \brief DiscoverClass  Find the rare class
+  ///
   void DiscoverClass();
-
-public:
-
-  /*!
-   * \brief EstimateRadius Estimate the radius of every cluster by use of k
-   * nearest neighbour
-   * \return a vector of radius
-   */
-  //colvec EstimateRadius();
 
 private:
 
-  mat data_matrix_;
-  colvec label_vector_;
-  Mat<size_t> neighbor_index_;
-  mat neighbor_;
-  unsigned int size_;
-  unsigned int class_num_;
+  mat data_matrix_; /// attribute-value of data set and a column
+                    /// represent a element
+  colvec label_vector_; /// the label of a data element
+  unsigned int size_; /// k
+  unsigned int class_num_; /// number of class
+  Mat<size_t> neighbor_index_; /// the index of k nearest neighbor
+  mat neighbor_; /// the distance value of k nearest neighbor
 
 };
 #endif // NNDM_H

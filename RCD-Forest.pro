@@ -6,7 +6,7 @@ CONFIG -= qt
 SOURCES += main.cpp \
     src/data_process.cpp \
     src/file.cpp \
-    src/ctree/ctree.cpp \
+    src/ctree.cpp \
     src/cforest.cpp \
     src/kdd.cpp
 

@@ -2,26 +2,15 @@
 #define ASSERT_H
 
 #include <iostream>
-#include "header/easylogging++.h" //logging
+#include "header/easylogging++.h" ///logging
 
-namespace ASSERT
-{
-
-  inline void ctree_assert(const char *e, const char *file, int line)
-  {
-    if(!e)
-      {
-        LOG(ERROR) << "NULL VALUD OF THE ROOT POINTER! AND EXIT THE RCD-FOREST.";
-        asm("int3");//inline assembling:set breakpoint
-      }
+#define ASSERT_NULL_POINTER(expr, msg) if(!(expr)){\
+  std::cout<<msg<<std::endl; \
+  std::cout<<"in line "<<__LINE__<<". file "\
+  <<__FILE__<<std::endl;\
+  asm("int3");\
   }
 
-  inline void cforest_assert(const char *e, const char *file, int line)
-  {
-    LOG(ERROR) << "WRONG VALUE OF CTREE NUMBER OR SUB SAMPLE NUM!"
-               << "IN LINE:" <<line<<" FILE:"<<file;
-    asm("int3");
+#define ASSERT_FAIL(expr, msg) if(!(expr)){\
   }
-
-}
 #endif // ASSERT_H

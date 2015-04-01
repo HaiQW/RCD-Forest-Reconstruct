@@ -3,7 +3,7 @@
 t_Configure file::ReadConfiguraion(char *file_name)
 {
   std::fstream cfg_file(file_name, std::ios::in);
-  //cfg_file.open();
+  ///cfg_file.open();
   if(!cfg_file.is_open())
     {
       std::cerr<<"error:could not open"<<file_name<<"!"<<
@@ -52,7 +52,7 @@ t_Configure file::ReadConfiguraion(char *file_name)
           cfg_file>>discared1>>discared2>>config.bin_width_;
         }
 
-      /*Read all class proportion*/
+      ///Read all class proportion
       if(std::string(status) == std::string("PROPORTION_NUM"))
       {
           for(int i = 0; i < config.class_num_; i++)
@@ -60,7 +60,7 @@ t_Configure file::ReadConfiguraion(char *file_name)
               t_Proportion proportion;
               cfg_file>>proportion.class_label_>>proportion.proportion_;
               proportion.class_num_ = 0;
-              proportion.r_ = DBL_MAX;//set r_ DBL_MAX
+              proportion.r_ = DBL_MAX;///set r_ DBL_MAX
               proportion.is_discovered_ = false;
               config.p_set.push_back(proportion);
           }
@@ -68,7 +68,7 @@ t_Configure file::ReadConfiguraion(char *file_name)
       delete[] status;
     }
 
-  //cfg_file.close();
+  ///cfg_file.close();
   return config;
 }
 
@@ -107,4 +107,63 @@ void file::ReadData(const char *file_name, mat &data_matrix,
       label_vector(i,0) = label;
     }
   data_file.close();
+}
+
+
+bool file::ReadCSV(const char *file_name, mat &data_matrix)
+{
+  std::fstream csv_file(file_name,std::ios::in);
+  if(!csv_file.open())
+    {
+      std::cerr<<"could not open the file : "<<file_name<<std::endl;
+      exit(1);
+    }
+
+  /// get a line
+  csv_file.clear();
+  csv_file.seekg(0,std::ios::beg);
+  std::string line;
+  while(!csv_file.eof())
+    {
+      std::getline(csv_file, line);
+
+    }
+}
+
+
+void file::csv::csvparser_init(file::csv::t_csvparser *parser)
+{
+  assert(parser);
+  parser->state = line_start;
+  parser->row = -1;
+  parser->col = -1;
+  parser->nread = 0;
+  parser->data = nullptr;
+}
+
+
+size_t file::csv::csvparser_execute(file::csv::t_csvparser *parser,
+                                    const file::csv::t_csvparser_setting *setting,
+                                    const char *data, size_t data_len)
+{
+  assert(parser);
+  assert(setting);
+  assert(data);
+
+  const char *cursor = data;
+  const char *field_value = nullptr;
+  const char *data_end = data + data_len;
+  int r;
+  parser->nread = 0;
+
+  if( data_len < 1)
+    {
+      return 0;
+    }
+
+  while( cursor < data_end )
+    {
+
+    }
+
 }

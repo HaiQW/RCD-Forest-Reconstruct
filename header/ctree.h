@@ -14,20 +14,21 @@
 
 using namespace arma;
 
-/*!
- * \brief The ctree class
- */
+///
+/// \brief The ctree class
+///
 class ctree
 {
 public:
 
-  /*!
-   * \brief ctree
-   * \param data_set
-   * \param height
-   */
+  ///
+  /// \brief ctree
+  /// \param data_set
+  /// \param size
+  /// \param height
+  ///
   explicit ctree(mat &data_set,int size, int height):data_matrix_(data_set),
-    height_(height),size_(size)
+    size_(size), height_(height)
   {
     root_ = new t_Cnode();
     root_->left_ = nullptr;
@@ -38,48 +39,48 @@ public:
 
 public:
 
-  /*!
-   * \brief BuildCtree
-   */
+  ///
+  /// \brief BuildCtree
+  ///
   void BuildCtree();
 
-  /*!
-   * \brief BuildCtree
-   * \param root
-   * \param data_set
-   * \param height
-   */
+  ///
+  /// \brief BuildCtree
+  /// \param root
+  /// \param data_set
+  /// \param height
+  ///
   void BuildCtree(t_Cnode *root, mat &data_set, int height);
 
-  /*!
-   * \brief SearchElement
-   * \param data_vector
-   * \return
-   */
+  ///
+  /// \brief SearchElement
+  /// \param data_vector
+  /// \return
+  ///
   double SearchElement(const rowvec &data_vector);
 
-  /*!
-   * \brief PrintCtree
-   */
+  ///
+  /// \brief PrintCtree
+  ///
   void PrintCtree();
 
 protected:
 
-  /*!
-   * \brief SearchHelp
-   * \param root
-   * \param data_vector
-   * \param height
-   * \return
-   */
+  ///
+  /// \brief SearchHelp
+  /// \param root
+  /// \param data_vector
+  /// \param height
+  /// \return
+  ///
   double SearchHelp(t_Cnode* root, const rowvec &data_vector, int height);
 
 private:
-
-  int size_; /*!< the maximum size of a leaf node */
-  int height_;  /*!< the maximum height of the compact tree. */
+  mat data_matrix_; /// Attribute-value of a given data set.
+                    ///A row represents an element.
+  int size_; /// the maximum size of a leaf node
+  int height_; /// the maximum height of the compact tree.
   t_Cnode* root_;
-  mat data_matrix_;
 
 
 };

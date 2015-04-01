@@ -8,7 +8,7 @@ void dataprocess::RandomSampling(const std::vector<t_Data> *src,
 }
 
 
-bool dataprocess::SemiBestPartition(mat &source,
+bool dataprocess::SemiBestPartition(const mat &source,
                                     mat &left,
                                     mat &right,
                                     int &par_dim, double &par_point)
@@ -22,12 +22,12 @@ bool dataprocess::SemiBestPartition(mat &source,
   int semi_best_index = -1;
 
   std::srand((unsigned)time(NULL));
-  par_dim = random()%source.n_cols; /*!< randomly select a partition dimension*/
+  par_dim = random()%source.n_cols; /// randomly select a partition dimension
 
-  /*! sort the elements in the selected dimension, we get an sorted index*/
+  /// sort the elements in the selected dimension, we get an sorted index
   uvec order_index = sort_index(source.col(par_dim));
 
-  /* calculate semi-best score*/
+  /// calculate semi-best score
   int i = 0;
   double sum = 0.0, right_avg = 0.0, right_dis = 0.0;
   for(i = 0; i < size; i++)
@@ -46,13 +46,13 @@ bool dataprocess::SemiBestPartition(mat &source,
     {
       double tmp_value = source(order_index(j), par_dim);
 
-      /* calculate the left side average distance */
+      /// calculate the left side average distance
       double left_tmp_avg = (left_avg * j + tmp_value) / (j + 1);
       left_dis = left_dis + (tmp_value - left_tmp_avg) * (tmp_value - left_tmp_avg)-
           2 * (left_tmp_avg - left_avg) * left_avg * j +
           left_tmp_avg * left_tmp_avg * j - left_avg * left_avg * j;
 
-      /* calculate the right side average distance */
+      /// calculate the right side average distance
       double right_tmp_avg = ((right_avg * (size - j) - tmp_value)) /
           (size - j -1);
       right_dis = right_dis - ( tmp_value - right_avg) * (tmp_value - right_avg) -
@@ -70,7 +70,7 @@ bool dataprocess::SemiBestPartition(mat &source,
       right_avg = right_tmp_avg;
     }
 
-  /* Assign the elements to each sub set */
+  /// Assign the elements to each sub set.
   left.set_size(semi_best_index + 1, source.n_cols);
   right.set_size(size - semi_best_index - 1, source.n_cols);
   for( int k = 0; k < size; k++)
