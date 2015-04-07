@@ -6,12 +6,14 @@
 #include <float.h>
 #include <string.h>
 #include <iostream>
+#include <iomanip>
 #include <limits.h>
 #include <eigen3/Eigen/Dense>
 #include <armadillo>
 
 #include "header/file.h"
 #include "header/data_struct.h"
+#include "header/assert.h"
 
 using namespace arma;
 
@@ -60,11 +62,25 @@ namespace csv
     unsigned row;
     unsigned col;
     uint32_t nread;
-    void *data;
+    void *data; /// void pointer
+  };
+
+  struct t_field
+  {
+    char data[32];
+    int row;
+    int col;
+    t_field *next;
+  };
+
+  struct t_csv
+  {
+    t_field *head;
+    t_field *tail;
   };
 
   /// function pointer
-  typedef int (*csvparser_field_callback)(t_csvparser *parser,
+  typedef bool (*csvparser_field_callback)(t_csvparser *parser,
                                          const char* data,
                                          size_t length,
                                          int row,
@@ -89,19 +105,61 @@ namespace csv
   /// \param data_len
   /// \return
   ///
-  size_t csv_parser_execute(t_csvparser *parser,
-                            const t_csvparser_setting *setting,
-                            const char *data,
-                            size_t data_len);
-  bool WirteCSV(const char* file_name, const mat &data_matrix);
+  size_t csvparser_execute(t_csvparser *parser,
+                           const t_csvparser_setting *setting,
+                           const char *data,
+                           size_t data_len);
+  ///
+  /// \brief new_field
+  /// \param data
+  /// \param length
+  /// \param row
+  /// \param col
+  /// \return
+  ///
+  t_field *new_field(const char *data, size_t length, int row, int col);
+
+  ///
+  /// \brief field_cb
+  /// \param paser
+  /// \param data
+  /// \param length
+  /// \param row
+  /// \param col
+  /// \return
+  ///
+  bool field_cb(t_csvparser *parser, const char *data, size_t length,
+               int row, int col);
+
+
+  ///
+  /// \brief WirteCSV  Write data matrix to a csv format file.
+  /// \param file_name  The name of the written csv file.
+  /// \param col_name  The attribute name of the csv file.
+  /// \param data_matrix  Attribute-value.
+  /// \return
+  ///
+  bool WirteCSV(const char *file_name, const std::vector<std::string> &col_name,
+                const mat &data_matrix);
 
   ///
   /// \brief ReadCSV
   /// \param file_name
-  /// \param data_matrix
+  /// \param setting
   /// \return
   ///
-  bool ReadCSV(const char* file_name, mat &data_matrix);
+  t_csvparser &ReadCSV(const char* file_name, const t_csvparser_setting *setting);
+
+  ///
+  /// \brief ReadCSV Read data from a csv data file and store the attribute into
+  /// a matrix and label to a vector.
+  ///
+  /// \param file_name
+  /// \param setting
+  /// \param data_matrix
+  ///
+  void ReadCSV(const char* file_name, const t_csvparser_setting *setting,
+               mat &data_matrix, colvec &label);
 }
 
 }

@@ -110,24 +110,38 @@ void file::ReadData(const char *file_name, mat &data_matrix,
 }
 
 
-bool file::ReadCSV(const char *file_name, mat &data_matrix)
+file::csv::t_csvparser &file::csv::ReadCSV(const char *file_name,
+                                           const file::csv::t_csvparser_setting *setting)
 {
-  std::fstream csv_file(file_name,std::ios::in);
-  if(!csv_file.open())
+  std::fstream csv_file(file_name, std::ios::in);
+  if(!csv_file.is_open())
     {
       std::cerr<<"could not open the file : "<<file_name<<std::endl;
       exit(1);
     }
 
-  /// get a line
-  csv_file.clear();
-  csv_file.seekg(0,std::ios::beg);
+  file::csv::t_csvparser parser;
+  file::csv::t_csv csv;
+  ssize_t nread;
+  const char *buffer;
   std::string line;
+
+  csv.head = nullptr;
+  csv.tail = nullptr;
+  file::csv::csvparser_init(&parser);
+  parser.data = &csv;
+
   while(!csv_file.eof())
     {
-      std::getline(csv_file, line);
-
+      /// read a line from the csv file and parse this line
+      std::getline(csv_file,line);
+      buffer = line.c_str();
+      nread = line.size();
+      file::csv::csvparser_execute(&parser, setting, buffer, nread);
+      line.clear();
     }
+
+  return parser;
 }
 
 
@@ -151,7 +165,7 @@ size_t file::csv::csvparser_execute(file::csv::t_csvparser *parser,
   assert(data);
 
   const char *cursor = data;
-  const char *field_value = nullptr;
+  const char *value = data;
   const char *data_end = data + data_len;
   int r;
   parser->nread = 0;
@@ -163,7 +177,173 @@ size_t file::csv::csvparser_execute(file::csv::t_csvparser *parser,
 
   while( cursor < data_end )
     {
+      char ch = *cursor;
+      switch(parser->state)
+        {
+        case line_start:
+          value = cursor;
+          parser->row += 1;
+          parser->col = -1;
+          parser->state = field_start;
+          break;
+        case field_start:
+          parser->col += 1;
+          parser->state = field_value;
+          value = cursor;
+          break;
+        case field_value:
+          if( ch == setting->delimiter)
+            {
+              parser->state = field_end;
+            }
+          else
+            {
+              cursor++;
+              if(value == nullptr) value = cursor;
+              if(cursor == data_end)
+                {
+                  if(setting->field_cb && value)
+                    {
+                      r = setting->field_cb(parser,
+                                            value,
+                                            cursor - value,
+                                            parser->row,
+                                            parser->col);
+                      ASSERT_CSV_READ(r,parser);
+                    }
+                }
+              parser->nread++;
+            }
+          break;
+        case field_end:
+          /// callback
+          if(setting->field_cb && value)
+            {
+              r = setting->field_cb(parser,
+                                    value,
+                                    cursor - value,
+                                    parser->row,
+                                    parser->col);
+              ASSERT_CSV_READ(r,parser);
+            }
+          parser->state = field_start;
+          cursor++;
+          parser->nread++;
+          break;
+        case error:
+          return parser->nread;
+          break;
+        default:
+          assert(0 && " invalid parser state ");
+          break;
+        }
+    }
+  parser->state = line_start;
+  return parser->nread;
+}
 
+
+bool file::csv::field_cb(file::csv::t_csvparser *parser, const char *data,
+                        size_t length, int row, int col)
+{
+  file::csv::t_csv *csv = (file::csv::t_csv*)parser->data;
+  file::csv::t_field *field = nullptr;
+
+  field = file::csv::new_field(data, length, row, col);
+  if(field == nullptr) return false;
+
+  if(!csv->tail)///first assignment
+    {
+      csv->tail = field;
+      csv->head = field;
+    }
+  else
+    {
+      csv->tail->next = field;
+      csv->tail = field;
     }
 
+  return true;
+}
+
+
+file::csv::t_field *file::csv::new_field(const char *data,
+                                         size_t length,
+                                         int row, int col)
+{
+  file::csv::t_field *field = (file::csv::t_field*)malloc
+      (sizeof(file::csv::t_field));
+  memset(field, 0, sizeof(file::csv::t_field));
+  field->row = row;
+  field->col = col;
+  strncpy(field->data, data, length);
+
+  return field;
+}
+
+
+bool file::csv::WirteCSV(const char *file_name,
+                         const std::vector<std::string> &col_name,
+                         const mat &data_matrix)
+{
+
+  if((col_name.size() != 0) && col_name.size() != data_matrix.n_cols )
+    {
+      std::cerr<<"the col_name number is not match with the data "
+                 "attribute number."<<std::endl;
+      return false;
+    }
+
+  std::ofstream csv_file(file_name);
+  if(!csv_file.is_open())
+    {
+      std::cerr<<"could not init the "<<file_name<< " ."<<std::endl;
+    }
+
+  /// write csv columns at the first line in the csv file
+  for(unsigned int i = 0; i < col_name.size(); i++)
+    {
+      if(i == col_name.size() - 1)
+        {
+          csv_file << col_name.at(i) << std::endl;
+        }
+      else
+        {
+          csv_file << col_name.at(i)<<",";
+        }
+    }
+
+  /// write data matrix into the csv file
+  for(unsigned int i = 0; i < data_matrix.n_rows; i++)
+    {
+      for(unsigned int j = 0; j < data_matrix.n_cols; j++)
+        {
+          if(j == data_matrix.n_cols - 1)
+            {
+              csv_file << data_matrix(i,j)<<endl;
+            }
+          else
+            {
+              csv_file << data_matrix(i,j)<<",";
+            }
+        }
+    }
+
+  csv_file.close();
+  return true;
+}
+
+
+void file::csv::ReadCSV(const char *file_name,
+                        const file::csv::t_csvparser_setting *setting,
+                        arma::mat &data_matrix,
+                        colvec &label)
+{
+  t_csvparser parser = ReadCSV(file_name,setting);
+  file::csv::t_csv *data = (file::csv::t_csv*)parser.data;
+  t_field *f = data->head;
+  while(f)
+    {
+       std::cout<<f->data<<","<<std::endl;
+    }
 }

@@ -7,7 +7,7 @@ bool cforest::BuildForest(int leaf_size)
     {
       ctree* crr_ctree = new ctree(data_matrix_, leaf_size,
                                    std::log2(data_matrix_.n_rows));
-      ASSERT_NULL_POINTER(!crr_ctree, "Null pointer of ctree root");
+      ASSERT_NULL_POINTER(crr_ctree, "Null pointer of ctree root");
       ctree_list_[i] = crr_ctree;
       crr_ctree->BuildCtree();
       LOG(INFO)<< "COMPACT TREE "<<i<<" HAS BEEN CONSTRUCTED.";

@@ -49,7 +49,5 @@ void KDD::DiscoverClass()
         {
           ask_flag(neighbor_index_(i,ask_index)) = 1;
         }
-
     }
-
 }
